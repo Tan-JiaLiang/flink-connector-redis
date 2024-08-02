@@ -82,8 +82,8 @@ public class RedisOptions implements Serializable {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         RedisOptions that = (RedisOptions) object;
-        return ioThreadPoolSize == that.ioThreadPoolSize
-                && computationThreadPoolSize == that.computationThreadPoolSize
+        return Objects.equals(ioThreadPoolSize, that.ioThreadPoolSize)
+                && Objects.equals(computationThreadPoolSize, that.computationThreadPoolSize)
                 && autoFlushCommands == that.autoFlushCommands
                 && mode == that.mode
                 && Objects.equals(nodes, that.nodes)

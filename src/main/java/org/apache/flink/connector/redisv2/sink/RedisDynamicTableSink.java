@@ -22,7 +22,6 @@ public class RedisDynamicTableSink implements DynamicTableSink, SupportsWritingM
     private final RedisCommand command;
     private final RedisOptions options;
     private final RedisWriteOptions writeOptions;
-    private final Integer parallelism;
     private final ResolvedSchema schema;
 
     private List<String> metadataKeys;
@@ -30,13 +29,11 @@ public class RedisDynamicTableSink implements DynamicTableSink, SupportsWritingM
     public RedisDynamicTableSink(RedisCommand command,
                                  RedisOptions options,
                                  RedisWriteOptions writeOptions,
-                                 ResolvedSchema schema,
-                                 Integer parallelism) {
+                                 ResolvedSchema schema) {
         this.command = command;
         this.options = options;
         this.writeOptions = writeOptions;
         this.schema = schema;
-        this.parallelism = parallelism;
         this.metadataKeys = Collections.emptyList();
     }
 
@@ -54,12 +51,12 @@ public class RedisDynamicTableSink implements DynamicTableSink, SupportsWritingM
                         schema,
                         metadataKeys
                 );
-        return SinkV2Provider.of(new RedisSink<>(writeCommandExec, writeOptions), parallelism);
+        return SinkV2Provider.of(new RedisSink<>(writeCommandExec, writeOptions), writeOptions.getParallelism());
     }
 
     @Override
     public DynamicTableSink copy() {
-        return new RedisDynamicTableSink(command, options, writeOptions, schema, parallelism);
+        return new RedisDynamicTableSink(command, options, writeOptions, schema);
     }
 
     @Override

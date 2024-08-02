@@ -44,11 +44,10 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             throw new IllegalArgumentException(String.format("%s must be set when sink", COMMAND.key()));
         }
 
-        Integer parallelism = tableOptions.get(SINK_PARALLELISM);
         RedisOptions options = toRedisOptions(tableOptions, false);
         RedisWriteOptions writeOptions = toRedisWriteOptions(tableOptions);
 
-        return new RedisDynamicTableSink(command, options, writeOptions, schema, parallelism);
+        return new RedisDynamicTableSink(command, options, writeOptions, schema);
     }
 
     @Override

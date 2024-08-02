@@ -1,23 +1,15 @@
 package org.apache.flink.connector.redisv2.client;
 
-import io.lettuce.core.*;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.event.EventBus;
-import io.lettuce.core.event.metrics.CommandLatencyEvent;
-import io.lettuce.core.metrics.CommandLatencyId;
-import io.lettuce.core.metrics.CommandMetrics;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollector;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.DefaultClientResources;
 import org.apache.flink.connector.redisv2.options.RedisOptions;
 import org.apache.flink.util.StringUtils;
-import org.reactivestreams.Subscription;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Map;
 
 public class StandaloneRedisClient implements RedisClient {
 
@@ -119,7 +111,5 @@ public class StandaloneRedisClient implements RedisClient {
         if (client != null) {
             client.close();
         }
-
-
     }
 }
