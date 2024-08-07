@@ -58,7 +58,7 @@ public abstract class WritableMetadata<T> implements Serializable {
     public static class ExpireMetadata extends WritableMetadata<Long> {
 
         public static final String KEY = "expire";
-        public static final DataType DATA_TYPE = DataTypes.INT().nullable();
+        public static final DataType DATA_TYPE = DataTypes.BIGINT().nullable();
 
         private final int pos;
 
