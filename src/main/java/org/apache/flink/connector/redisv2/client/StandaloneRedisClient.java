@@ -2,6 +2,7 @@ package org.apache.flink.connector.redisv2.client;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
@@ -96,6 +97,11 @@ public class StandaloneRedisClient implements RedisClient {
     @Override
     public RedisFuture<Boolean> expire(String key, Long expire) {
         return commands.expire(key, expire);
+    }
+
+    @Override
+    public RedisFuture<String> eval(String script, ScriptOutputType type, String[] keys, String[] values) {
+        return commands.eval(script, type, keys, values);
     }
 
     @Override

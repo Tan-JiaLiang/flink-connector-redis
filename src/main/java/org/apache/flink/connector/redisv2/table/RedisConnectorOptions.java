@@ -74,6 +74,18 @@ public class RedisConnectorOptions {
                     .noDefaultValue()
                     .withDescription("Redis password");
 
+    public static final ConfigOption<String> SINK_PUT_LUA_SCRIPT_PATH =
+            ConfigOptions.key("sink.put-lua-script.path")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The put lua script for LUA command");
+
+    public static final ConfigOption<String> SINK_DEL_LUA_SCRIPT_PATH =
+            ConfigOptions.key("sink.del-lua-script.path")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The del lua script for LUA command");
+
     public static final ConfigOption<Boolean> LOOKUP_ASYNC =
             ConfigOptions.key("lookup.async")
                     .booleanType()

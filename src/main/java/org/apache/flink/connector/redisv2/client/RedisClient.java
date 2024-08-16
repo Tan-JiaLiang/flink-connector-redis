@@ -1,6 +1,7 @@
 package org.apache.flink.connector.redisv2.client;
 
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.SetArgs;
 
 import java.io.IOException;
@@ -26,6 +27,8 @@ public interface RedisClient {
     RedisFuture<Long> decrby(String key, long amount);
 
     RedisFuture<Boolean> expire(String key, Long expire);
+
+    RedisFuture<String> eval(String script, ScriptOutputType type, String[] keys, String[] values);
 
     void flush() throws IOException;
 

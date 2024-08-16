@@ -56,4 +56,33 @@ public class LettuceTest extends RedisTestingClusterAutoStarter {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void testLua() throws Exception{
+        RedisURI uri =
+                RedisURI.builder()
+                        .withHost(getRedisHost())
+                        .withPort(getRedisPort())
+                        .withTimeout(Duration.ofSeconds(500))
+                        .build();
+
+        DefaultClientResources resources =
+                DefaultClientResources.builder()
+                        .ioThreadPoolSize(5)
+                        .computationThreadPoolSize(5)
+                        .build();
+
+        String script = "redis.call('SET', KEYS[1], ARGV[1])";
+
+        try (RedisClient redisClient = RedisClient.create(resources, uri)) {
+            StatefulRedisConnection<String, String> connection = redisClient.connect();
+            RedisAsyncCommands<String, String> commands = connection.async();
+
+            RedisFuture<Object> eval = commands.eval(script, ScriptOutputType.STATUS, new String[]{"k1"}, "v1");
+            Object status = eval.get();
+            System.out.println(status);
+
+            System.out.println(commands.get("k1").get());
+        }
+    }
 }

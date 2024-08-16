@@ -95,7 +95,7 @@ Read-only columns must be declared `VIRTUAL` to exclude them during an `INSERT I
       <td>required</td>
       <td>(none)</td>
       <td>String</td>
-      <td>Redis command, support <code>SET</code>,<code>SETNX</code>,<code>HSET</code>,<code>HSETNX</code>,<code>INCRBY</code> for sink, <code>GET</code>,<code>HGET</code> for lookup.</td>
+      <td>Redis command, support <code>SET</code>,<code>SETNX</code>,<code>HSET</code>,<code>HSETNX</code>,<code>INCRBY</code>,<code>LUA</code> for sink, <code>GET</code>,<code>HGET</code> for lookup.</td>
     </tr>
     <tr>
       <td><h5>nodes</h5></td>

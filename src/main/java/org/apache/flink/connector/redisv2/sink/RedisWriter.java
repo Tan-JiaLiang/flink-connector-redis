@@ -74,7 +74,6 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
         checkErrorAndRethrow();
         List<RedisFuture<?>> futures = command.write(element);
         pendingFutures.addAll(futures);
-        pendingFlushRows = pendingFutures.size();
 
         // 满N条执行flush操作
         if (pendingFlushRows >= bufferFlushMaxRows) {
@@ -101,6 +100,7 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
                         TimeUnit.SECONDS,
                         pendingFutures.toArray(new RedisFuture[0])
                 );
+        pendingFlushRows = pendingFutures.size();
         pendingFutures.clear();
         pendingFlushRows = 0;
         if (!timeout) {

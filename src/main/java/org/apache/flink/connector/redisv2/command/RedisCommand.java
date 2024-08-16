@@ -7,6 +7,7 @@ public enum RedisCommand {
     HSETNX,
     INCRBY,
     GET,
-    HGET
+    HGET,
+    LUA
     ;
 }

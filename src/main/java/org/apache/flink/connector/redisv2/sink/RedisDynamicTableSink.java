@@ -13,6 +13,7 @@ import org.apache.flink.table.connector.sink.abilities.SupportsWritingMetadata;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,18 +24,24 @@ public class RedisDynamicTableSink implements DynamicTableSink, SupportsWritingM
     private final RedisOptions options;
     private final RedisWriteOptions writeOptions;
     private final ResolvedSchema schema;
+    @Nullable private final String putScriptPath;
+    @Nullable private final String delScriptPath;
 
     private List<String> metadataKeys;
 
     public RedisDynamicTableSink(RedisCommand command,
                                  RedisOptions options,
                                  RedisWriteOptions writeOptions,
-                                 ResolvedSchema schema) {
+                                 ResolvedSchema schema,
+                                 @Nullable String putScriptPath,
+                                 @Nullable String delScriptPath) {
         this.command = command;
         this.options = options;
         this.writeOptions = writeOptions;
         this.schema = schema;
         this.metadataKeys = Collections.emptyList();
+        this.putScriptPath = putScriptPath;
+        this.delScriptPath = delScriptPath;
     }
 
     @Override
@@ -49,14 +56,16 @@ public class RedisDynamicTableSink implements DynamicTableSink, SupportsWritingM
                         command,
                         options,
                         schema,
-                        metadataKeys
+                        metadataKeys,
+                        putScriptPath,
+                        delScriptPath
                 );
         return SinkV2Provider.of(new RedisSink<>(writeCommandExec, writeOptions), writeOptions.getParallelism());
     }
 
     @Override
     public DynamicTableSink copy() {
-        return new RedisDynamicTableSink(command, options, writeOptions, schema);
+        return new RedisDynamicTableSink(command, options, writeOptions, schema, putScriptPath, delScriptPath);
     }
 
     @Override

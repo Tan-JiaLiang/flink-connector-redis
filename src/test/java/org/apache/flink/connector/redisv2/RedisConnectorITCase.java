@@ -149,6 +149,74 @@ public class RedisConnectorITCase extends RedisTestingClusterAutoStarter {
         TestBaseUtils.compareResultAsText(results, expected);
     }
 
+
+    @Test
+    public void testRedisSinkLuaCommand() throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());
+        StreamTableEnvironment tEnv = StreamTableEnvironment.create(env, EnvironmentSettings.inStreamingMode());
+
+        // register values table for source
+        String dataId =
+                TestValuesTableFactory.registerData(
+                        Arrays.asList(
+                                Row.of("1", "Hello1"),
+                                Row.of("1", "Hello2"),
+                                Row.of("2", "Hello1"),
+                                Row.of("2", "Hello2"),
+                                Row.of("2", "Hello3"),
+                                Row.of("2", "Hello3"),
+                                Row.of("1", "Hello3")
+                        )
+                );
+        tEnv.executeSql(
+                "CREATE TABLE source_table ("
+                        + " id STRING,"
+                        + " name STRING"
+                        + ") WITH ("
+                        + " 'connector' = 'values',"
+                        + " 'data-id' = '" + dataId + "'"
+                        + ")");
+        tEnv.executeSql(
+                "CREATE TABLE redis_sink ("
+                        + " id STRING,"
+                        + " name STRING,"
+                        + " PRIMARY KEY(id) NOT ENFORCED"
+                        + ") WITH ("
+                        + " 'connector' = 'redis-v2',"
+                        + " 'mode' = 'standalone',"
+                        + " 'nodes' = '"
+                        + getRedisHost() + ":" + getRedisPort()
+                        + "',"
+                        + " 'command' = 'LUA',"
+                        + " 'sink.put-lua-script.path' = 'lua/put.lua',"
+                        + " 'sink.del-lua-script.path' = 'lua/del.lua'"
+                        + ")");
+        tEnv.executeSql("INSERT INTO redis_sink(id, name) SELECT id, name FROM source_table").await();
+
+        // start a batch scan job to verify contents in Redis table
+        tEnv.executeSql(
+                "CREATE TABLE redis_lookup ("
+                        + " id STRING,"
+                        + " name STRING,"
+                        + " PRIMARY KEY(id) NOT ENFORCED"
+                        + ") WITH ("
+                        + " 'connector' = 'redis-v2',"
+                        + " 'mode' = 'standalone',"
+                        + " 'nodes' = '"
+                        + getRedisHost() + ":" + getRedisPort()
+                        + "',"
+                        + " 'command' = 'GET'"
+                        + ")");
+        Table table = tEnv.sqlQuery(
+                "SELECT t.id, name FROM (VALUES ('1', proctime()), ('2', proctime())) t (id, proc_time) " +
+                        "INNER JOIN redis_lookup FOR SYSTEM_TIME AS OF t.proc_time ON redis_lookup.id = t.id");
+        List<Row> results = CollectionUtil.iteratorToList(table.execute().collect());
+        String expected =
+                "+I[1, Hello3]\n"
+                        + "+I[2, Hello3]";
+        TestBaseUtils.compareResultAsText(results, expected);
+    }
+
     @Test
     public void testRedisSinkSetCommandWithExpire() throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(new Configuration());

@@ -44,10 +44,13 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             throw new IllegalArgumentException(String.format("%s must be set when sink", COMMAND.key()));
         }
 
+        String putScriptPath = tableOptions.get(SINK_PUT_LUA_SCRIPT_PATH);
+        String delScriptPath = tableOptions.get(SINK_DEL_LUA_SCRIPT_PATH);
+
         RedisOptions options = toRedisOptions(tableOptions, false);
         RedisWriteOptions writeOptions = toRedisWriteOptions(tableOptions);
 
-        return new RedisDynamicTableSink(command, options, writeOptions, schema);
+        return new RedisDynamicTableSink(command, options, writeOptions, schema, putScriptPath, delScriptPath);
     }
 
     @Override
@@ -99,6 +102,8 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         set.add(COMPUTATION_POOL_SIZE);
         set.add(TIMEOUT);
         set.add(PASSWORD);
+        set.add(SINK_PUT_LUA_SCRIPT_PATH);
+        set.add(SINK_DEL_LUA_SCRIPT_PATH);
         set.add(SINK_BUFFER_FLUSH_MAX_ROWS);
         set.add(SINK_BUFFER_FLUSH_INTERVAL);
         set.add(LOOKUP_ASYNC);
