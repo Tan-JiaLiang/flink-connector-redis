@@ -63,7 +63,7 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
         );
 
         // metrics
-        this.flushLatenciesHistogram = new DescriptiveStatisticsHistogram(1000);
+        this.flushLatenciesHistogram = new DescriptiveStatisticsHistogram(100);
         metrics.flushRowsGauge(() -> pendingFlushRows);
         metrics.flushLatenciesNanosHistogram(flushLatenciesHistogram);
         metrics.flushInternalGauge(() -> lastFlushInternal);
