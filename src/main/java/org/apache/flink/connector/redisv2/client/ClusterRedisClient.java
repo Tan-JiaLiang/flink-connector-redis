@@ -130,6 +130,7 @@ public class ClusterRedisClient implements RedisClient {
     @Override
     public void close() throws IOException {
         if (connection != null) {
+            connection.flushCommands();
             connection.close();
         }
         if (client != null) {

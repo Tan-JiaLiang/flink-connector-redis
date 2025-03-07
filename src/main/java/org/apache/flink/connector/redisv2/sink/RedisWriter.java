@@ -29,7 +29,7 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
     private final long bufferFlushMaxRows;
     private final Duration timeout;
 
-    private volatile int pendingFlushRows = 0;
+    private volatile int lastFlushRows = 0;
     private volatile long lastFlushTime = 0L;
     private volatile long lastFlushInternal = 0L;
     private volatile boolean closed = false;
@@ -64,7 +64,7 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
 
         // metrics
         this.flushLatenciesHistogram = new DescriptiveStatisticsHistogram(100);
-        metrics.flushRowsGauge(() -> pendingFlushRows);
+        metrics.flushRowsGauge(() -> lastFlushRows);
         metrics.flushLatenciesNanosHistogram(flushLatenciesHistogram);
         metrics.flushInternalGauge(() -> lastFlushInternal);
     }
@@ -76,7 +76,7 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
         pendingFutures.addAll(futures);
 
         // 满N条执行flush操作
-        if (pendingFlushRows >= bufferFlushMaxRows) {
+        if (pendingFutures.size() >= bufferFlushMaxRows) {
             flush(false);
         }
     }
@@ -100,9 +100,8 @@ public class RedisWriter<IN> implements SinkWriter<IN> {
                         TimeUnit.SECONDS,
                         pendingFutures.toArray(new RedisFuture[0])
                 );
-        pendingFlushRows = pendingFutures.size();
+        lastFlushRows = pendingFutures.size();
         pendingFutures.clear();
-        pendingFlushRows = 0;
         if (!timeout) {
             throw new RuntimeException("redis batch write timeout");
         }
